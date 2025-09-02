@@ -1,4 +1,4 @@
-# Federated Kidney Stone Corruption Detection
+# FedAgain: Federated Kidney Stone Corruption Detection
 
 A federated learning framework for training robust autoencoder models to detect image corruptions in medical kidney stone datasets. The system evaluates model performance against 16 different types of image corruptions while preserving data privacy through distributed training.
 
@@ -327,11 +327,11 @@ This framework is designed for:
 If you use this code in your research, please cite:
 
 ```bibtex
-@misc{federated_kidney_stone_corruption_detection,
-  title={Federated Learning for Robust Kidney Stone Corruption Detection},
-  author={Your Name},
-  year={2024},
-  howpublished={\url{https://github.com/your-repo/federated-kidney-stone-corruption-detection}}
+@misc{fedagai_federated_kidney_stone_corruption_detection,
+  title={FedAgain - Federated Learning for Robust Kidney Stone Corruption Detection},
+  author={Ivan Reyes-Amezcua},
+  year={2025},
+  howpublished={\url{https://github.com/Ivanrs297/federated-kidney-stone-corruption-detection}}
 }
 ```
 
