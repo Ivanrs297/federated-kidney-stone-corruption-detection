@@ -327,7 +327,7 @@ This framework is designed for:
 If you use this code in your research, please cite:
 
 ```bibtex
-@misc{fedagai_federated_kidney_stone_corruption_detection,
+@misc{fedagain_federated_kidney_stone_corruption_detection,
   title={FedAgain - Federated Learning for Robust Kidney Stone Corruption Detection},
   author={Ivan Reyes-Amezcua},
   year={2025},
