@@ -1,48 +1,50 @@
-# Federated Autoencoder for Kidney Stone Classification
+# Federated Kidney Stone Corruption Detection
 
-This project implements a federated learning framework using PyTorch and Flower to train an autoencoder on kidney stone image datasets. The autoencoder learns embeddings for different classes (MIX, SEC, SUR) from two datasets in a non-IID federated setting with configurable image corruptions.
+A federated learning framework for training robust autoencoder models to detect image corruptions in medical kidney stone datasets. The system evaluates model performance against 16 different types of image corruptions while preserving data privacy through distributed training.
 
-## Features
+## 🔬 Features
 
-- **Federated Learning**: Uses Flower framework for distributed training
+- **Federated Learning**: Uses Flower framework for distributed training across multiple clients
+- **Corruption Detection**: Robust evaluation against 16 corruption types (blur, noise, brightness, contrast, etc.)
+- **Medical Image Analysis**: Specialized for kidney stone classification (MIX, SEC, SUR types)
 - **Non-IID Data Distribution**: Implements Dirichlet distribution for realistic federated scenarios
-- **Image Corruptions**: Configurable random corruptions (noise, blur, brightness, contrast)
-- **Autoencoder Architecture**: Deep convolutional autoencoder for learning image embeddings
-- **Multiple Datasets**: Supports Michel Daudon and Jonathan El-Beze kidney stone datasets
-- **Flexible Configuration**: Easy-to-modify hyperparameters and settings
+- **Autoencoder Architecture**: Deep convolutional autoencoder for anomaly detection
+- **Multi-Dataset Support**: Compatible with Jonathan El-Beze, Michel Daudon, and MyStone datasets
+- **Comprehensive Metrics**: ROC-AUC, precision, recall, F1-score evaluation
+- **Robustness Testing**: Systematic evaluation of model performance under various corruptions
 
 ## Project Structure
 
 ```
-federated-learning/
+federated-kidney-stone-corruption-detection/
 ├── data/                           # Dataset directory
 │   ├── Michel Daudon (w256 1k v1)/
-│   │   ├── MIX/
-│   │   │   ├── train/
-│   │   │   └── test/
-│   │   ├── SEC/
-│   │   │   ├── train/
-│   │   │   └── test/
-│   │   └── SUR/
-│   │       ├── train/
-│   │       └── test/
-│   └── Jonathan El-Beze (w256 1k v1)/
-│       ├── MIX/
-│       ├── SEC/
-│       └── SUR/
+│   │   ├── MIX/, SEC/, SUR/        # 6 kidney stone subtypes each
+│   │   │   ├── train/              # Training images
+│   │   │   └── test/               # Test images
+│   ├── Jonathan El-Beze (w256 1k v1)/
+│   │   ├── MIX/, SEC/, SUR/        # Same structure
+│   └── MyStone (w256, 1k)/
+│       ├── train/                  # 4,800 JPG images
+│       └── test/                   # 1,200 JPG images
+├── endoscopycorruptions/           # Corruption functions
+│   ├── __init__.py
+│   └── corruptions.py              # 16 corruption implementations
 ├── models/
 │   ├── __init__.py
-│   └── autoencoder.py              # Autoencoder model definition
+│   └── autoencoder.py              # Deep convolutional autoencoder
 ├── utils/
 │   ├── __init__.py
-│   └── data_utils.py               # Data loading and preprocessing utilities
-├── config.py                       # Configuration file
-├── client.py                       # Flower client implementation
-├── server.py                       # Flower server implementation
-├── run_client.py                   # Script to run individual clients
-├── run_simulation.py               # Simulation script for testing
+│   ├── data_utils.py               # Data loading utilities
+│   └── metrics.py                  # Comprehensive evaluation metrics
+├── robust_divergence_experiments/
+│   └── train.py                    # Main training script
+├── config.py                       # Configuration parameters
+├── client.py                       # Federated client implementation
+├── server.py                       # Federated server strategy
+├── run_simulation.py               # Federated simulation runner
 ├── requirements.txt                # Python dependencies
-└── README.md                       # This file
+└── README.md                       # This documentation
 ```
 
 ## Installation
@@ -59,29 +61,34 @@ federated-learning/
 
 3. **Verify data structure**: Ensure your `data/` folder contains the kidney stone datasets with the expected structure.
 
-## Usage
+## 🚀 Quick Start
 
-### 1. Simulation Mode (Recommended for Testing)
-
-Run the entire federated learning process in simulation mode:
+### Basic Usage
 
 ```bash
-# Basic simulation with all datasets and subversions
+# Install dependencies
+pip install -r requirements.txt
+
+# Run main training script with corruption detection
+python robust_divergence_experiments/train.py
+
+# Run federated simulation (recommended)
 python run_simulation.py --save_results --plot_results
+```
 
-# Train only on specific dataset
-python run_simulation.py --datasets "Michel Daudon (w256 1k v1)" --save_results --plot_results
+### Advanced Usage
 
-# Train only on specific subversions
+```bash
+# Train on specific dataset
+python run_simulation.py --datasets "Michel Daudon (w256 1k v1)" --save_results
+
+# Train on specific kidney stone types
 python run_simulation.py --subversions MIX SEC --save_results --plot_results
 
-# Train on specific dataset and subversion
-python run_simulation.py --datasets "Jonathan El-Beze (w256 1k v1)" --subversions SUR --save_results --plot_results
-
-# Custom simulation with specific parameters
+# Custom federated parameters
 python run_simulation.py \
     --datasets "Michel Daudon (w256 1k v1)" "Jonathan El-Beze (w256 1k v1)" \
-    --subversions MIX SEC \
+    --subversions MIX SEC SUR \
     --num_clients 8 \
     --num_rounds 15 \
     --corruption_prob 0.2 \
@@ -172,26 +179,65 @@ The autoencoder consists of:
 - Progressive upsampling (8×8 → 256×256)
 - Output: Reconstructed 256×256×3 image
 
-## Image Corruptions
+## 🔧 Corruption Types
 
-The framework supports various image corruptions:
+The system evaluates robustness against 16 different corruption types:
 
-1. **Gaussian Noise**: Random noise addition
-2. **Salt & Pepper Noise**: Random pixel corruption
-3. **Blur**: Gaussian blur with random radius
-4. **Brightness**: Random brightness adjustment
-5. **Contrast**: Random contrast modification
+### **Visual Corruptions:**
+- **Gaussian Noise**: Random noise addition
+- **Shot Noise**: Poisson noise simulation  
+- **Impulse Noise**: Salt & pepper corruption
+- **Speckle Noise**: Multiplicative noise
 
-Each client applies random corruptions based on the specified probability.
+### **Blur Corruptions:**
+- **Defocus Blur**: Out-of-focus simulation
+- **Motion Blur**: Camera shake effects
+- **Zoom Blur**: Radial blur patterns
 
-## Results and Monitoring
+### **Weather Corruptions:**
+- **Fog**: Atmospheric haze simulation
+- **Frost**: Ice crystal patterns
+- **Snow**: Snowfall effects
 
-The simulation script provides:
+### **Digital Corruptions:**
+- **JPEG Compression**: Compression artifacts
+- **Pixelate**: Resolution reduction
+- **Elastic Transform**: Geometric distortions
 
-- **Training plots**: Loss curves over federated rounds
-- **Configuration logs**: All hyperparameters and settings
-- **Numerical results**: Best/final loss values
-- **Model checkpoints**: Saved in `models/` directory
+### **Lighting Corruptions:**
+- **Brightness**: Illumination changes
+- **Contrast**: Dynamic range modification
+- **Saturate**: Color saturation effects
+
+Each corruption is tested at 5 severity levels for comprehensive robustness evaluation.
+
+## 📊 Dataset Statistics
+
+### **Total Dataset Size**: ~50,000+ Images
+
+| Dataset | MIX | SEC | SUR | Total |
+|---------|-----|-----|-----|-------|
+| **Jonathan El-Beze** | 12,000 | 6,000 | 6,000 | 24,000 |
+| **Michel Daudon** | 12,000 | 6,000 | 6,023 | 24,023 |
+| **MyStone** | - | - | - | 6,000 |
+
+### **Kidney Stone Subtypes** (6 classes):
+- **Type Ia**: Whewellite monohydrate
+- **Type IIa**: Whewellite dihydrate  
+- **Type IIb**: Weddellite
+- **Type IVa**: Uric acid
+- **Type IVd**: Uric acid dihydrate
+- **Type VIa**: Brushite
+
+## 📈 Results and Monitoring
+
+The system provides comprehensive evaluation:
+
+- **Corruption Robustness**: ROC-AUC scores across all 16 corruptions
+- **Training Curves**: Loss progression over federated rounds
+- **Performance Metrics**: Precision, recall, F1-score for each corruption type
+- **Model Checkpoints**: Best models saved with full metrics
+- **Visualization**: Corruption examples and detection results
 
 ## Example Output
 
@@ -260,16 +306,32 @@ Extend `server.py` to implement different federated learning strategies:
 - FedNova
 - Custom weighted averaging
 
-## Citation
+## 🏥 Medical Applications
+
+This framework is designed for:
+
+- **Robust Medical Image Analysis**: Ensuring model reliability under real-world image quality variations
+- **Privacy-Preserving Healthcare**: Training on distributed medical data without sharing sensitive information
+- **Quality Assurance**: Detecting image corruptions that could affect diagnostic accuracy
+- **Cross-Institution Collaboration**: Enabling multi-hospital research without data centralization
+
+## 🔬 Research Applications
+
+- **Federated Learning Research**: Benchmarking FL algorithms on medical data
+- **Robustness Evaluation**: Systematic testing of model reliability
+- **Medical AI Safety**: Ensuring consistent performance across imaging conditions
+- **Domain Adaptation**: Studying performance across different medical imaging setups
+
+## 📚 Citation
 
 If you use this code in your research, please cite:
 
 ```bibtex
-@misc{federated_autoencoder_kidney_stones,
-  title={Federated Autoencoder for Kidney Stone Classification},
-  author={Ivan Reyes-Amezcua},
-  year={2025},
-  howpublished={\url{https://github.com/Ivanrs297/federated-kidney-stone-corruption-detection}}
+@misc{federated_kidney_stone_corruption_detection,
+  title={Federated Learning for Robust Kidney Stone Corruption Detection},
+  author={Your Name},
+  year={2024},
+  howpublished={\url{https://github.com/your-repo/federated-kidney-stone-corruption-detection}}
 }
 ```
 
